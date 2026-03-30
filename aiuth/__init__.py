@@ -13,6 +13,9 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+# Import shAIsum module
+from .shaisum import SHAIsum, shaisum
+
 # Configure logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -516,4 +519,6 @@ __all__ = [
     "AnthropicBackend",
     "OpenRouterBackend",
     "create_aiuth",
+    "SHAIsum",
+    "shaisum",
 ]
