@@ -65,7 +65,6 @@ venv.bak/
 *~
 
 # Project specific
-aiuth.txt
 *.log
 
 # MyPy

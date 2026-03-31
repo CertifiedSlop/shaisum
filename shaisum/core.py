@@ -2,7 +2,7 @@
 import logging
 import os
 import re
-from typing import Optional
+from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +11,7 @@ Output ONLY 64 hexadecimal characters (0-9, a-f). No other text."""
 
 
 class _OllamaBackend:
+    """Ollama backend for local LLM inference."""
     def __init__(self, model="llama3.2", base_url="http://localhost:11434", **kw):
         self.model = model
         self.base_url = base_url.rstrip("/")
@@ -31,6 +32,7 @@ class _OllamaBackend:
 
 
 class _OpenAIBackend:
+    """OpenAI backend for GPT-based inference."""
     def __init__(self, model="gpt-4o-mini", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
@@ -53,6 +55,7 @@ class _OpenAIBackend:
 
 
 class _AnthropicBackend:
+    """Anthropic backend for Claude-based inference."""
     def __init__(self, model="claude-3-haiku-20240307", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -75,6 +78,7 @@ class _AnthropicBackend:
 
 
 class _OpenRouterBackend:
+    """OpenRouter backend for multi-provider LLM access."""
     def __init__(self, model="meta-llama/llama-3-8b-instruct", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
@@ -98,7 +102,21 @@ class _OpenRouterBackend:
 
 
 class SHAIsum:
-    """shAIsum - SHA256-like Hash Function Powered by LLM."""
+    """shAIsum - SHA256-like Hash Function Powered by LLM.
+
+    This hash function uses an LLM to generate hashes. There is no
+    mathematics, no determinism, no collision resistance. Only vibes.
+
+    Args:
+        backend: Backend name ('ollama', 'openai', 'anthropic', 'openrouter')
+        model: Model name (backend-specific)
+        **kwargs: Additional arguments passed to the backend
+
+    Example:
+        >>> hasher = SHAIsum(backend='ollama')
+        >>> h = hasher.hash('hello world')
+        >>> print(h)  # 64-char hex string
+    """
     BACKENDS = {
         "ollama": _OllamaBackend,
         "openai": _OpenAIBackend,
@@ -116,9 +134,11 @@ class SHAIsum:
         self._cache = {}
 
     def _validate(self, h):
+        """Validate that hash is 64 hex characters."""
         return bool(re.match(r"^[a-f0-9]{64}$", h.lower()))
 
     def _fallback(self, d):
+        """Generate a fallback hash when LLM fails."""
         b = d.encode("utf-8")
         chars = []
         for i in range(64):
@@ -128,11 +148,20 @@ class SHAIsum:
         return "".join(chars)
 
     def _extract(self, r):
+        """Extract 64-char hex from LLM response."""
         r = r.strip().lower()
         m = re.search(r"[a-f0-9]{64}", r)
         return m.group(0) if m else self._fallback(r)
 
     def hash(self, data):
+        """Generate a SHA256-like hash for the input.
+
+        Args:
+            data: Input string to hash
+
+        Returns:
+            64-character hexadecimal string
+        """
         if data in self._cache:
             return self._cache[data]
         try:
@@ -147,6 +176,14 @@ class SHAIsum:
         return h
 
     def hash_file(self, path):
+        """Hash a file's contents.
+
+        Args:
+            path: Path to the file
+
+        Returns:
+            64-character hexadecimal string
+        """
         try:
             with open(path, "r") as f:
                 return self.hash(f.read())
@@ -157,18 +194,40 @@ class SHAIsum:
             return self._fallback(path)
 
     def verify(self, data, expected):
+        """Verify that data matches expected hash.
+
+        Args:
+            data: Input string
+            expected: Expected hash value
+
+        Returns:
+            True if hash matches, False otherwise
+        """
         return self.hash(data).lower() == expected.lower()
 
     def clear_cache(self):
+        """Clear the hash cache."""
         self._cache.clear()
 
 
 def shaisum(data, backend="ollama", **kw):
-    """Generate a SHA256-like hash for the given input using LLM."""
+    """Generate a SHA256-like hash for the given input using LLM.
+
+    Convenience function that creates a SHAIsum instance and hashes.
+
+    Args:
+        data: Input string to hash
+        backend: Backend name (default: 'ollama')
+        **kwargs: Additional arguments for the backend
+
+    Returns:
+        64-character hexadecimal string
+    """
     return SHAIsum(backend=backend, **kw).hash(data)
 
 
 def main():
+    """CLI entry point."""
     import argparse
     import sys
     p = argparse.ArgumentParser(description="shAIsum - SHA256-like hash powered by LLM")
