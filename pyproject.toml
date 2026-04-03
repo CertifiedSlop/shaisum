@@ -8,41 +8,41 @@ version = "1.0.0"
 description = "A SHA256-like hash function powered by LLM"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 authors = [
 {name = "CertifiedSlop", email = "certifiedslop@example.com"}
 ]
-keywords = ["hash", "sha256", "ai", "llm", "vibes", "cryptography"]
+keywords = ["hash", "sha256", "ai", "llm", "vibes", "cryptography", "certifiedslop"]
 classifiers = [
 "Development Status :: 4 - Beta",
 "Intended Audience :: Developers",
 "License :: OSI Approved :: MIT License",
 "Programming Language :: Python :: 3",
-"Programming Language :: Python :: 3.8",
-"Programming Language :: Python :: 3.9",
-"Programming Language :: Python :: 3.10",
-"Programming Language :: Python :: 3.11",
 "Programming Language :: Python :: 3.12",
 "Topic :: Security",
 "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-"requests>=2.28.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
+ai = [
+    "slop-common>=1.0.0",
+]
 ollama = []
 openai = ["openai>=1.0.0"]
 anthropic = ["anthropic>=0.18.0"]
 openrouter = []
 dev = [
-"pytest>=7.0.0",
-"pytest-cov>=4.0.0",
-"black>=23.0.0",
-"ruff>=0.1.0",
+"pytest>=8.0.0",
+"pytest-cov>=4.1.0",
+"black>=24.0.0",
+"ruff>=0.2.0",
+"mypy>=1.8.0",
 ]
 all = [
-"shaisum[ollama,openai,anthropic,openrouter,dev]",
+"shaisum[ai,ollama,openai,anthropic,openrouter,dev]",
 ]
 
 [project.scripts]
@@ -59,11 +59,11 @@ include = ["shaisum*"]
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py312"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
