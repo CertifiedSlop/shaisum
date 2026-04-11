@@ -65,6 +65,9 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "integration: marks tests that require an LLM backend (deselect with '-m \"not integration\"')",
+]
 
 [tool.mypy]
 python_version = "3.12"

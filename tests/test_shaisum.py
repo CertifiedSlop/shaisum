@@ -62,6 +62,7 @@ class TestSHAIsumHashing:
 
 class TestSHAIsumFileHashing:
     """Test file hashing functionality."""
+    pytestmark = pytest.mark.integration
 
     def test_hash_text_file(self, tmp_path):
         """Test hashing a text file."""
@@ -95,6 +96,7 @@ class TestSHAIsumFileHashing:
 
 class TestSHAIsumVerification:
     """Test hash verification functionality."""
+    pytestmark = pytest.mark.integration
 
     def test_verify_matching_hash(self):
         """Test verifying a matching hash."""
@@ -123,6 +125,7 @@ class TestSHAIsumVerification:
 
 class TestSHAIsumBackend:
     """Test backend configuration."""
+    pytestmark = pytest.mark.integration
 
     def test_default_backend_is_ollama(self):
         """Test that Ollama is the default backend."""
@@ -142,6 +145,7 @@ class TestSHAIsumBackend:
 
 class TestShaisumConvenienceFunction:
     """Test the convenience function."""
+    pytestmark = pytest.mark.integration
 
     def test_shaisum_returns_64_char_hex(self):
         """Test that shaisum returns 64-char hex."""
