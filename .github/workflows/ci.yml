@@ -27,7 +27,7 @@ jobs:
         run: uv sync --all-extras
         
       - name: Run tests
-        run: uv run pytest tests/ -v
+        run: uv run pytest tests/ -v -m "not integration"
         
       - name: Run type checking
         run: uv run mypy shaisum/

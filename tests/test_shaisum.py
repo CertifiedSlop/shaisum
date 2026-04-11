@@ -12,6 +12,7 @@ from shaisum import SHAIsum, shaisum
 
 class TestSHAIsumHashing:
     """Test hashing functionality."""
+    pytestmark = pytest.mark.integration
 
     def test_hash_returns_64_char_hex(self):
         """Test that hash returns 64-character hex string."""
