@@ -301,7 +301,7 @@ A: shAIsum is many things. What it is to you is a question for your reflection.
 
 ## License
 
-See LICENSE for details. In the spirit of shAIsum, the license is more of a suggestion.
+See [LICENSE](LICENSE) for details. In the spirit of shAIsum, the license is more of a suggestion.
 
 ## Acknowledgments
 
