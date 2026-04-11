@@ -110,7 +110,7 @@ class TestSHAIsumVerification:
         # Different input should not match
         assert hasher.verify("different data", h) is False
 
-        def test_verify_case_insensitive(self):
+    def test_verify_case_insensitive(self):
         """Test that verification is case-insensitive."""
         hasher = SHAIsum()
         h = hasher.hash("test data")
