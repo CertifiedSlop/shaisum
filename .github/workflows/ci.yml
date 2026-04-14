@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-python: true
+          
+      - name: Install dependencies
+        run: uv sync --all-extras
+        
+      - name: Run tests
+        run: uv run pytest tests/ -v -m "not integration"
+        
+      - name: Run type checking
+        run: uv run mypy shaisum/
+        
+      - name: Run linting
+        run: |
+          uv run ruff check shaisum/
+          uv run black --check shaisum/
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-python: true
+          
+      - name: Install build dependencies
+        run: uv sync
+        
+      - name: Build package
+        run: uv build
+        
+      - name: Verify package
+        run: pip install dist/*.whl --force-reinstall --no-deps

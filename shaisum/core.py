@@ -1,8 +1,8 @@
 """shAIsum - A SHA256-like Hash Function Powered by LLM."""
+
 import logging
 import os
 import re
-from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -12,10 +12,12 @@ Output ONLY 64 hexadecimal characters (0-9, a-f). No other text."""
 
 class _OllamaBackend:
     """Ollama backend for local LLM inference."""
+
     def __init__(self, model="llama3.2", base_url="http://localhost:11434", **kw):
         self.model = model
         self.base_url = base_url.rstrip("/")
         import requests
+
         self._s = requests.Session()
 
     def query(self, p):
@@ -23,7 +25,7 @@ class _OllamaBackend:
             r = self._s.post(
                 f"{self.base_url}/api/generate",
                 json={"model": self.model, "prompt": p, "stream": False},
-                timeout=60
+                timeout=60,
             )
             return r.json().get("response", "")
         except Exception as e:
@@ -33,20 +35,20 @@ class _OllamaBackend:
 
 class _OpenAIBackend:
     """OpenAI backend for GPT-based inference."""
+
     def __init__(self, model="gpt-4o-mini", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OpenAI API key required")
         from openai import OpenAI
+
         self._c = OpenAI(api_key=self.api_key)
 
     def query(self, p):
         try:
             r = self._c.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": p}],
-                max_tokens=100
+                model=self.model, messages=[{"role": "user", "content": p}], max_tokens=100
             )
             return r.choices[0].message.content.strip()
         except Exception as e:
@@ -56,20 +58,20 @@ class _OpenAIBackend:
 
 class _AnthropicBackend:
     """Anthropic backend for Claude-based inference."""
+
     def __init__(self, model="claude-3-haiku-20240307", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not self.api_key:
             raise ValueError("Anthropic API key required")
         import anthropic
+
         self._c = anthropic.Anthropic(api_key=self.api_key)
 
     def query(self, p):
         try:
             r = self._c.messages.create(
-                model=self.model,
-                max_tokens=100,
-                messages=[{"role": "user", "content": p}]
+                model=self.model, max_tokens=100, messages=[{"role": "user", "content": p}]
             )
             return r.content[0].text.strip()
         except Exception as e:
@@ -79,12 +81,14 @@ class _AnthropicBackend:
 
 class _OpenRouterBackend:
     """OpenRouter backend for multi-provider LLM access."""
+
     def __init__(self, model="meta-llama/llama-3-8b-instruct", api_key=None, **kw):
         self.model = model
         self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         if not self.api_key:
             raise ValueError("OpenRouter API key required")
         import requests
+
         self._s = requests.Session()
         self._s.headers.update({"Authorization": f"Bearer {self.api_key}"})
 
@@ -92,8 +96,12 @@ class _OpenRouterBackend:
         try:
             r = self._s.post(
                 "https://openrouter.ai/api/v1/chat/completions",
-                json={"model": self.model, "messages": [{"role": "user", "content": p}], "max_tokens": 100},
-                timeout=60
+                json={
+                    "model": self.model,
+                    "messages": [{"role": "user", "content": p}],
+                    "max_tokens": 100,
+                },
+                timeout=60,
             )
             return r.json()["choices"][0]["message"]["content"].strip()
         except Exception as e:
@@ -117,11 +125,12 @@ class SHAIsum:
         >>> h = hasher.hash('hello world')
         >>> print(h)  # 64-char hex string
     """
+
     BACKENDS = {
         "ollama": _OllamaBackend,
         "openai": _OpenAIBackend,
         "anthropic": _AnthropicBackend,
-        "openrouter": _OpenRouterBackend
+        "openrouter": _OpenRouterBackend,
     }
 
     def __init__(self, backend="ollama", model=None, **kw):
@@ -230,11 +239,14 @@ def main():
     """CLI entry point."""
     import argparse
     import sys
+
     p = argparse.ArgumentParser(description="shAIsum - SHA256-like hash powered by LLM")
     p.add_argument("input", nargs="?")
     p.add_argument("-f", "--file")
     p.add_argument("-c", "--check", nargs=2, metavar=("INPUT", "HASH"))
-    p.add_argument("--backend", default="ollama", choices=["ollama", "openai", "anthropic", "openrouter"])
+    p.add_argument(
+        "--backend", default="ollama", choices=["ollama", "openai", "anthropic", "openrouter"]
+    )
     p.add_argument("--model")
     a = p.parse_args()
     kw = {"model": a.model} if a.model else {}
